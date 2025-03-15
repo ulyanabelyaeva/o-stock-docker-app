@@ -48,3 +48,45 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
       - "6379:6379"
+  elasticsearch:
+    image: elasticsearch:7.17.27
+    container_name: o-stock-elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /Users/ulyanabelyaeva/Projects/IdeaProjects/trains/o-stock/data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9300:9300
+      - 9200:9200
+  kibana:
+    image: kibana:7.17.27
+    container_name: o-stock-kibana
+    environment:
+      ELASTICSEARCH_URL: "http://elasticsearch:9300"
+    ports:
+      - 5601:5601
+  logstash:
+    image: logstash:7.17.27
+    container_name: o-stock-logstash
+    volumes:
+      - ./conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5044:5044"
+  zipkin:
+    image: bitnami/zipkin:3.5.0
+    container_name: zipkin
+    depends_on:
+      - elasticsearch
+    environment:
+      - STORAGE_TYPE=elasticsearch
+      - "ES_HOSTS=elasticsearch:9300"
+    ports:
+      - "9411:9411"
