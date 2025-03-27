@@ -90,3 +90,18 @@ services:
       - "ES_HOSTS=elasticsearch:9300"
     ports:
       - "9411:9411"
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    container_name: prometheus
+  grafana:
+    image: "grafana/grafana:latest"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    container_name: grafana
